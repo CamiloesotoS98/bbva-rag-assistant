@@ -1,7 +1,3 @@
-¡Listo! He dejado el README en un formato de texto plano y directo, tal como lo escribiría cualquier desarrollador en su día a día. Puedes copiarlo y pegarlo directamente en el archivo README.md de tu proyecto.
-
-Aquí lo tienes:
-
 BBVA RAG Assistant
 Asistente conversacional basado en la arquitectura Retrieval-Augmented Generation (RAG). Este sistema permite a los usuarios consultar información institucional extraída del sitio web de BBVA mediante procesamiento de lenguaje natural.
 
