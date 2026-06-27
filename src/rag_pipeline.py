@@ -7,21 +7,16 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 
-# Configuración de logging
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DocumentIndexer:
     def __init__(self):
-        # ¡NUEVA RUTA! Subimos un nivel desde 'src' para llegar a la raíz y buscar 'data'
         self.base_dir = Path(__file__).resolve().parent.parent
         self.clean_dir = self.base_dir / "data" / "clean"
         self.chroma_dir = self.base_dir / "data" / "chroma_db"
-        
-        # Modelo de embeddings gratuito y local (cumple requisito 25 de la prueba)
         logging.info("Cargando modelo de embeddings local...")
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        
-        # Inicializar ChromaDB apuntando a nuestra carpeta local
         self.vector_store = Chroma(
             persist_directory=str(self.chroma_dir),
             embedding_function=self.embeddings

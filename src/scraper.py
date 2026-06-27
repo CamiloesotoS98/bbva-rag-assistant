@@ -68,9 +68,6 @@ class WebScraperContext:
     """Maneja la lógica de negocio para guardar los datos."""
     def __init__(self, strategy: BaseScraperStrategy):
         self._strategy = strategy
-        
-        # ¡EL CAMBIO CLAVE DE RUTA ESTÁ AQUÍ! (.parent.parent)
-        # Esto asegura que la carpeta 'data' se cree en la raíz (bbva-rag-assistant/) y no dentro de 'src/'
         self.base_dir = Path(__file__).resolve().parent.parent
         self.raw_dir = self.base_dir / "data" / "raw"
         self.clean_dir = self.base_dir / "data" / "clean"

@@ -13,7 +13,7 @@ class ChatAnalytics:
 
     def generate_report(self):
         if not self.db_path.exists():
-            print("❌ No se encontró la base de datos de historial.")
+            print(" No se encontró la base de datos de historial.")
             return
 
         try:
@@ -39,16 +39,16 @@ class ChatAnalytics:
             avg_user_words = sum(user_words) / len(user_words) if user_words else 0
             avg_bot_words = sum(bot_words) / len(bot_words) if bot_words else 0
 
-            # 4. Imprimir el reporte en consola
+
             print("\n" + "="*50)
-            print("📊 REPORTE DE ANALÍTICA DEL ASISTENTE RAG 📊")
+            print(" REPORTE DE ANALÍTICA DEL ASISTENTE RAG ")
             print("="*50)
-            print(f"🔹 Total de sesiones únicas: {total_sessions}")
-            print(f"🔹 Total de mensajes procesados: {total_messages}")
+            print(f" Total de sesiones únicas: {total_sessions}")
+            print(f" Total de mensajes procesados: {total_messages}")
             print(f"   - Preguntas de usuarios: {role_counts.get('user', 0)}")
             print(f"   - Respuestas del asistente: {role_counts.get('assistant', 0)}")
             print("-" * 50)
-            print("📈 MÉTRICAS DE INTERACCIÓN:")
+            print(" MÉTRICAS DE INTERACCIÓN:")
             print(f"   - Promedio de palabras por pregunta: {avg_user_words:.1f}")
             print(f"   - Promedio de palabras por respuesta: {avg_bot_words:.1f}")
             print("="*50 + "\n")

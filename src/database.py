@@ -15,7 +15,6 @@ class ChatDatabase(metaclass=SingletonMeta):
     Maneja la persistencia del historial de conversaciones por ID de sesión.
     """
     def __init__(self):
-        # Aseguramos que la BD se guarde en la carpeta 'data' en la raíz del proyecto
         self.base_dir = Path(__file__).resolve().parent.parent
         self.db_path = self.base_dir / "data" / "chat_history.db"
         self._init_db()
@@ -64,7 +63,7 @@ class ChatDatabase(metaclass=SingletonMeta):
         )
         rows = cursor.fetchall()
         
-        # Los invertimos para devolverlos en orden cronológico normal (el más antiguo primero)
+
         rows.reverse()
         return [{"role": row[0], "content": row[1]} for row in rows]
 
