@@ -1,0 +1,11 @@
+# .streamlit/config.toml
+[theme]
+# Azul marino corporativo de BBVA
+primaryColor = "#072146"
+# Fondo general azul muy claro/grisáceo para dar contraste
+backgroundColor = "#F4F6F9"
+# Cajas de chat y menú en blanco puro
+secondaryBackgroundColor = "#FFFFFF"
+# Texto oscuro para alta legibilidad
+textColor = "#121212"
+font = "sans serif"

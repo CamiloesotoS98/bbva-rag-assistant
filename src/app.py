@@ -12,43 +12,59 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 
-# Importamos nuestros propios módulos
 from database import ChatDatabase
 from patterns.factory import LLMFactory
 
-# Cargar variables de entorno (el archivo .env)
 load_dotenv()
 
-# Configuración visual de la página
-st.set_page_config(page_title="Asistente RAG", page_icon="🏦", layout="centered")
-st.title("🏦 Asistente Virtual Financiero")
+# 1. CONFIGURACIÓN VISUAL DE LA PÁGINA (Debe ser la primera instrucción)
+st.set_page_config(page_title="BBVA Assistant", page_icon="🏦", layout="wide")
 
-# Inicializar un ID de sesión único para cada usuario que abre la web
+# 2. INYECCIÓN DE CSS AVANZADO
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        
+        /* Mejorar la apariencia de la caja de chat */
+        .stChatInputContainer {
+            padding-bottom: 20px;
+        }
+        
+        /* Darle un fondo blanco y sombra sutil al área de mensajes */
+        .stChatMessage {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 10px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# 3. GESTIÓN DE SESIÓN Y BASE DE DATOS
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
-# Conectar a nuestra base de datos Singleton
 db = ChatDatabase()
 
+# 4. CARGA DEL PIPELINE RAG
 @st.cache_resource
 def load_rag_pipeline():
-    """Carga y cachea la cadena RAG para que no se recargue en cada mensaje."""
     base_dir = Path(__file__).resolve().parent.parent
     chroma_dir = base_dir / "data" / "chroma_db"
     
-    # 1. Conectar a ChromaDB local
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vector_store = Chroma(persist_directory=str(chroma_dir), embedding_function=embeddings)
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
     
-    # 2. Instanciar LLM usando nuestro Patrón Factory
     llm = LLMFactory.create_llm(provider="groq")
     
-    # 3. Crear el Prompt del Asistente
     system_prompt = (
-        "Eres un asistente virtual amable y experto de un banco en Colombia. "
-        "Usa el siguiente contexto recuperado de la web para responder la pregunta del usuario. "
-        "Si la respuesta no está en el contexto, di honestamente que no tienes esa información. "
+        "Eres un asesor financiero virtual experto, profesional y amable de BBVA Colombia. "
+        "Usa EXCLUSIVAMENTE el siguiente contexto recuperado de la web para responder. "
+        "Si no sabes la respuesta o no está en el contexto, indica amablemente que no dispones de esa información. "
         "Contexto:\n{context}"
     )
     
@@ -61,43 +77,55 @@ def load_rag_pipeline():
     question_answer_chain = create_stuff_documents_chain(llm, prompt)
     return create_retrieval_chain(retriever, question_answer_chain)
 
-# Intentar cargar el RAG
 try:
     rag_chain = load_rag_pipeline()
 except Exception as e:
     st.error(f"Error de configuración: {e}")
     st.stop()
 
-# ==========================================
-# Lógica de Interfaz y Memoria
-# ==========================================
+# 5. DISEÑO DE LA INTERFAZ: BARRA LATERAL (SIDEBAR)
+with st.sidebar:
+    st.markdown("## 🏦 BBVA RAG Assistant")
+    st.markdown("---")
+    st.info(f"**ID de Sesión:**\n`{st.session_state.session_id[:8]}...`")
+    
+    st.markdown("### 💡 Sugerencias:")
+    st.markdown("- *¿Qué tarjetas de crédito tienen?*")
+    st.markdown("- *Explícame los beneficios de la tarjeta Aqua.*")
+    
+    st.markdown("---")
+    if st.button("🔄 Nueva Conversación", use_container_width=True):
+        st.session_state.session_id = str(uuid.uuid4())
+        st.rerun()
 
-# 1. Recuperar historial (N = 6 mensajes) desde SQLite
+# 6. DISEÑO DE LA INTERFAZ: ÁREA PRINCIPAL
+st.title("Asistente Virtual Institucional")
+st.markdown("Hola. Soy tu asistente financiero impulsado por Inteligencia Artificial. ¿En qué te puedo ayudar hoy?")
+
+# Recuperar y mostrar historial con avatares personalizados
 raw_history = db.get_recent_history(st.session_state.session_id, limit=6)
 langchain_history = []
 
-# 2. Mostrar los mensajes antiguos en la pantalla
 for msg in raw_history:
-    with st.chat_message(msg["role"]):
+    # Asignamos "👤" al usuario y "🏦" al asistente
+    avatar_icon = "👤" if msg["role"] == "user" else "🏦"
+    with st.chat_message(msg["role"], avatar=avatar_icon):
         st.markdown(msg["content"])
         
-    # Formatear el historial para que LangChain lo entienda
     if msg["role"] == "user":
         langchain_history.append(HumanMessage(content=msg["content"]))
     else:
         langchain_history.append(AIMessage(content=msg["content"]))
 
-# 3. Capturar la nueva pregunta del usuario
-if user_input := st.chat_input("Pregunta sobre tarjetas de crédito, cuentas, etc..."):
+# 7. CAPTURA DE NUEVO MENSAJE
+if user_input := st.chat_input("Escribe tu consulta aquí..."):
     
-    # Imprimir en pantalla y guardar en BD
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.markdown(user_input)
     db.save_message(st.session_state.session_id, "user", user_input)
     
-    # Consultar al modelo con la pregunta y el historial
-    with st.chat_message("assistant"):
-        with st.spinner("Buscando en la base de datos documental..."):
+    with st.chat_message("assistant", avatar="🏦"):
+        with st.spinner("Consultando la base de conocimiento..."):
             response = rag_chain.invoke({
                 "input": user_input,
                 "chat_history": langchain_history
@@ -105,5 +133,4 @@ if user_input := st.chat_input("Pregunta sobre tarjetas de crédito, cuentas, et
             answer = response["answer"]
             st.markdown(answer)
             
-    # Guardar respuesta del bot en BD
     db.save_message(st.session_state.session_id, "assistant", answer)

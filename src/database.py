@@ -68,6 +68,21 @@ class ChatDatabase(metaclass=SingletonMeta):
         rows.reverse()
         return [{"role": row[0], "content": row[1]} for row in rows]
 
+    def get_all_sessions(self) -> list:
+        """
+        Recupera una lista de todas las sesiones únicas, 
+        ordenadas por la fecha del último mensaje.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT session_id, MAX(timestamp) as last_active 
+            FROM messages 
+            GROUP BY session_id 
+            ORDER BY last_active DESC
+        ''')
+        rows = cursor.fetchall()
+        return [row[0] for row in rows]
+
 # ==========================================
 # Ejecución para prueba local
 # ==========================================
