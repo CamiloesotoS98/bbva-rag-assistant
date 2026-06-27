@@ -1,0 +1,11 @@
+langchain
+langchain-community
+langchain-core
+langchain-groq
+sentence-transformers
+chromadb
+streamlit
+python-dotenv
+beautifulsoup4
+playwright
+playwright-stealth

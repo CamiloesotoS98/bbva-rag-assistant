@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  rag_assistant:
+    build: .
+    container_name: bbva_rag_container
+    ports:
+      - "8501:8501"
+    volumes:
+      # Sincroniza la carpeta data para persistir el historial de SQLite y ChromaDB
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
