@@ -1,0 +1,13 @@
+# Archivos de entorno (¡MUY IMPORTANTE!)
+.env
+
+# Archivos de caché y configuración de Docker/IDE
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+
+# Datos persistentes de la base de datos (para no subir datos locales)
+chroma_db/
+*.sqlite3
